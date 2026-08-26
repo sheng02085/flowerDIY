@@ -4,26 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Botanical Bliss - 線上 DIY 客製花束工作台</title>
-  <!-- Fabric.js -->
+  <!-- 引入穩定版 Fabric.js 5.3.1 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-  <!-- Google Fonts & Lucide Icons -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+TC:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
       --primary: #9d5c48;
-      --primary-light: #f5ebe6;
-      --accent: #5e7153;
-      --accent-light: #eef2eb;
-      --bg-cream: #faf7f2;
-      --card-bg: #ffffff;
-      --text-main: #2d2621;
-      --text-muted: #7d7268;
+      --primary-hover: #824735;
+      --primary-light: #f7eee9;
+      --accent: #556b4f;
+      --accent-light: #eef3ed;
+      --bg-warm: #f6f1eb;
+      --canvas-bg: #fffdfa;
+      --text-main: #2b231d;
+      --text-muted: #82756a;
       --border-color: #ebdcd0;
-      --shadow-sm: 0 2px 8px rgba(90, 60, 45, 0.06);
-      --shadow-md: 0 8px 24px rgba(90, 60, 45, 0.1);
+      --shadow-sm: 0 4px 12px rgba(80, 50, 35, 0.06);
+      --shadow-md: 0 12px 30px rgba(80, 50, 35, 0.12);
     }
 
     * {
@@ -35,7 +36,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, #f4eee6 0%, #e8decb 100%);
+      background: linear-gradient(135deg, #f3ece4 0%, #e5dac9 100%);
       font-family: 'Plus Jakarta Sans', 'Noto Serif TC', serif, sans-serif;
       color: var(--text-main);
       display: flex;
@@ -49,10 +50,10 @@
       width: 100%;
       max-width: 440px;
       height: 94vh;
-      max-height: 900px;
+      max-height: 880px;
       background: #ffffff;
-      border-radius: 28px;
-      box-shadow: 0 20px 50px rgba(70, 45, 30, 0.18), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      border-radius: 26px;
+      box-shadow: 0 20px 50px rgba(70, 45, 30, 0.18);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -61,14 +62,13 @@
 
     /* 頂部導航欄 */
     .top-navbar {
-      height: 54px;
+      height: 52px;
       padding: 0 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
+      background: #ffffff;
       z-index: 10;
     }
 
@@ -94,13 +94,13 @@
     }
     .btn-finish:active {
       transform: scale(0.95);
-      background: #874b39;
+      background: var(--primary-hover);
     }
 
-    /* 上半部：工作台與畫布 */
+    /* 上半部：插花工作台 */
     .workbench-section {
       position: relative;
-      background: radial-gradient(circle at center, #ffffff 0%, var(--bg-cream) 100%);
+      background: radial-gradient(circle at center, #ffffff 0%, var(--bg-warm) 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -108,16 +108,17 @@
       padding: 10px 10px 4px 10px;
     }
 
-    .canvas-container-wrapper {
+    .canvas-wrapper {
       position: relative;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: var(--shadow-sm);
-      border: 1.5px solid rgba(235, 220, 208, 0.6);
-      background: #faf7f2;
+      border: 1.5px solid rgba(235, 220, 208, 0.8);
+      background: var(--canvas-bg);
+      touch-action: none;
     }
 
-    /* 懸浮在畫布右側的快捷工具列 */
+    /* 快捷工具浮動列 */
     .floating-tools {
       position: absolute;
       right: 18px;
@@ -129,12 +130,12 @@
     }
 
     .tool-icon-btn {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(235, 220, 208, 0.8);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(235, 220, 208, 0.9);
       box-shadow: 0 3px 8px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
@@ -152,18 +153,18 @@
       height: 16px;
       stroke: var(--text-main);
       fill: none;
-      stroke-width: 2;
+      stroke-width: 2.2;
     }
     .tool-icon-btn span {
       font-size: 8px;
       color: var(--text-muted);
       margin-top: 1px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
-    /* 即時摘要資訊條 */
+    /* 資訊統計條 */
     .bouquet-summary-bar {
-      width: 90%;
+      width: 92%;
       margin: 8px auto 4px;
       padding: 8px 14px;
       background: #ffffff;
@@ -182,7 +183,7 @@
       font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-weight: 600;
     }
     .summary-val {
       font-size: 14px;
@@ -190,7 +191,7 @@
       color: var(--primary);
     }
 
-    /* 下半部：分類與花材選擇庫 */
+    /* 下半部：花材分類與選擇庫 */
     .selector-container {
       flex: 1;
       background: #ffffff;
@@ -199,7 +200,6 @@
       flex-direction: column;
       overflow: hidden;
       border-radius: 20px 20px 0 0;
-      box-shadow: 0 -4px 16px rgba(0,0,0,0.02);
     }
 
     .category-tabs {
@@ -236,7 +236,7 @@
       border-radius: 4px;
     }
 
-    /* 卡片網格清單 */
+    /* 卡片列表 */
     .flower-grid {
       flex: 1;
       overflow-y: auto;
@@ -267,20 +267,20 @@
       transform: scale(0.94);
     }
     .card-img-wrap {
-      width: 62px;
-      height: 62px;
+      width: 60px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 4px;
     }
-    .card-img-wrap svg, .card-img-wrap img {
-      max-width: 100%;
-      max-height: 100%;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.06));
+    .card-img-wrap svg {
+      width: 54px;
+      height: 54px;
+      pointer-events: none;
     }
     .card-name {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-main);
       text-align: center;
@@ -290,7 +290,7 @@
       width: 100%;
     }
     .card-price {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--primary);
       margin-top: 2px;
@@ -299,7 +299,7 @@
       position: absolute;
       top: 4px;
       right: 4px;
-      background: rgba(94, 113, 83, 0.15);
+      background: rgba(85, 107, 79, 0.15);
       color: var(--accent);
       font-size: 8px;
       padding: 1px 4px;
@@ -307,11 +307,11 @@
       font-weight: 700;
     }
 
-    /* Modal / Popups */
+    /* 彈窗 */
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(30, 20, 15, 0.5);
+      background: rgba(30, 20, 15, 0.6);
       backdrop-filter: blur(4px);
       display: none;
       align-items: center;
@@ -337,14 +337,14 @@
       font-family: 'Noto Serif TC', serif;
       font-size: 17px;
       color: var(--primary);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .preview-img-container {
-      width: 200px;
-      height: 220px;
+      width: 220px;
+      height: 240px;
       margin: 10px auto;
       border-radius: 16px;
-      background: var(--bg-cream);
+      background: var(--bg-warm);
       border: 1px dashed var(--border-color);
       overflow: hidden;
       display: flex;
@@ -383,7 +383,7 @@
 <body>
 
   <div class="app-frame">
-    <!-- 頂部標題導航 -->
+    <!-- 頂部導航 -->
     <div class="top-navbar">
       <div class="brand-title">Botanical DIY</div>
       <button class="btn-finish" onclick="openFinishModal()">完成匯出</button>
@@ -391,16 +391,16 @@
 
     <!-- 上半部：插花工作台 -->
     <div class="workbench-section">
-      <div class="canvas-container-wrapper">
-        <canvas id="flowerCanvas" width="320" height="280"></canvas>
+      <div class="canvas-wrapper">
+        <canvas id="flowerCanvas" width="320" height="290"></canvas>
         
         <!-- 畫布右側快捷浮動按鈕 -->
         <div class="floating-tools">
-          <div class="tool-icon-btn" onclick="bringForward()" title="上移一層">
+          <div class="tool-icon-btn" onclick="bringForward()" title="置前一層">
             <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
             <span>置前</span>
           </div>
-          <div class="tool-icon-btn" onclick="sendBackwards()" title="下移一層">
+          <div class="tool-icon-btn" onclick="sendBackwards()" title="置後一層">
             <svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
             <span>置後</span>
           </div>
@@ -408,11 +408,11 @@
             <svg viewBox="0 0 24 24"><path d="M7 16l-4-4 4-4M17 8l4 4-4 4M3 12h18"/></svg>
             <span>翻轉</span>
           </div>
-          <div class="tool-icon-btn" onclick="rotate45()" title="旋轉45度">
+          <div class="tool-icon-btn" onclick="rotate45()" title="旋轉花朵">
             <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l6.23-5.19"/></svg>
             <span>旋轉</span>
           </div>
-          <div class="tool-icon-btn" onclick="deleteActive()" title="刪除選定花材" style="color:#d9534f;">
+          <div class="tool-icon-btn" onclick="deleteActive()" title="刪除選定花材">
             <svg viewBox="0 0 24 24" style="stroke:#c94a4a;"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             <span style="color:#c94a4a;">刪除</span>
           </div>
@@ -423,7 +423,7 @@
       <div class="bouquet-summary-bar">
         <div class="summary-item">
           <span class="summary-label">花材數量</span>
-          <span class="summary-val" id="totalCount">0 朵</span>
+          <span class="summary-val" id="totalCount">0 件</span>
         </div>
         <div class="summary-item" style="text-align: right;">
           <span class="summary-label">花束預估總價</span>
@@ -432,163 +432,148 @@
       </div>
     </div>
 
-    <!-- 下半部：花材分類與點選庫 -->
+    <!-- 下半部：花材庫 -->
     <div class="selector-container">
       <div class="category-tabs">
         <div class="tab-item active" onclick="switchCategory('main', this)">主花材 (Main)</div>
         <div class="tab-item" onclick="switchCategory('filler', this)">配花 (Fillers)</div>
         <div class="tab-item" onclick="switchCategory('foliage', this)">綠葉 (Foliage)</div>
-        <div class="tab-item" onclick="switchCategory('wrap', this)">包裝底襯 (Wraps)</div>
+        <div class="tab-item" onclick="switchCategory('wrap', this)">包裝與緞帶 (Wraps)</div>
       </div>
 
-      <div class="flower-grid" id="flowerGrid">
-        <!-- 由 JavaScript 動態生成卡片 -->
-      </div>
+      <div class="flower-grid" id="flowerGrid"></div>
     </div>
 
-    <!-- 完成與匯出彈窗 -->
+    <!-- 匯出完成彈窗 -->
     <div class="modal-overlay" id="finishModal">
       <div class="modal-box">
-        <h3>✨ 您的專屬手作花束已完成</h3>
-        <p style="font-size:12px; color:var(--text-muted);">可長按或點擊下載保存高清花束圖片</p>
+        <h3>✨ 手作花束已完成</h3>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom: 6px;">高清去背圖已生成，點擊即可儲存</p>
         <div class="preview-img-container">
           <img id="exportPreview" src="" alt="花束預覽">
         </div>
         <div class="modal-btns">
-          <button class="btn-modal cancel" onclick="closeFinishModal()">繼續微調</button>
-          <button class="btn-modal confirm" onclick="downloadImage()">下載花束圖</button>
+          <button class="btn-modal cancel" onclick="closeFinishModal()">繼續調整</button>
+          <button class="btn-modal confirm" onclick="downloadImage()">下載花束圖片</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // 1. 內建精美向量花材 SVG 圖形庫（保證零外部依賴、直接開啟可用）
+    // 嚴格標準化向量花材（具備標準寬高與 viewBox，原生向量渲染）
     const SVGS = {
-      rose_peach: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 Q48 70 50 55" stroke="#5a7042" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <path d="M48 85 Q35 75 30 85 Q40 92 48 88" fill="#6b8450"/>
-        <path d="M52 75 Q65 65 70 75 Q60 82 52 78" fill="#6b8450"/>
-        <!-- Rose petals -->
-        <circle cx="50" cy="45" r="32" fill="#f4a88b" opacity="0.95"/>
-        <path d="M30 40 C25 25, 45 15, 60 25 C75 35, 70 55, 55 60 C35 65, 25 50, 30 40 Z" fill="#eb8f70"/>
-        <path d="M38 36 C35 28, 50 20, 60 28 C68 35, 62 48, 52 50 C42 52, 36 42, 38 36 Z" fill="#dd7453"/>
-        <path d="M44 34 C42 30, 52 26, 56 30 C60 34, 56 42, 50 42 C44 42, 42 38, 44 34 Z" fill="#bc5133"/>
-        <circle cx="49" cy="35" r="3.5" fill="#913018"/>
+      rose_peach: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 Q48 70 50 50" stroke="#5a7042" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M48 85 Q32 75 28 85 Q40 92 48 88" fill="#6b8450"/>
+        <path d="M52 75 Q68 65 72 75 Q60 82 52 78" fill="#6b8450"/>
+        <circle cx="50" cy="42" r="32" fill="#f4a88b"/>
+        <path d="M30 38 C25 22, 45 15, 60 25 C75 35, 70 55, 55 60 C35 65, 25 48, 30 38 Z" fill="#eb8f70"/>
+        <path d="M38 34 C35 26, 50 18, 60 26 C68 33, 62 46, 52 48 C42 50, 36 40, 38 34 Z" fill="#dd7453"/>
+        <path d="M44 32 C42 28, 52 24, 56 28 C60 32, 56 40, 50 40 C44 40, 42 36, 44 32 Z" fill="#bc5133"/>
+        <circle cx="49" cy="33" r="3.5" fill="#913018"/>
       </svg>`,
-      tulip_apricot: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 Q50 80 50 60" stroke="#526b3e" stroke-width="4" fill="none" stroke-linecap="round"/>
+      tulip_apricot: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 Q50 80 50 55" stroke="#526b3e" stroke-width="4" fill="none" stroke-linecap="round"/>
         <path d="M48 95 Q25 70 35 45 Q45 70 48 75" fill="#618047"/>
         <path d="M52 90 Q75 65 65 40 Q55 65 52 70" fill="#618047"/>
-        <!-- Tulip Cup -->
         <path d="M32 55 C25 35, 35 20, 50 22 C65 20, 75 35, 68 55 C62 68, 38 68, 32 55 Z" fill="#fca868"/>
         <path d="M36 50 C30 35, 40 22, 50 24 C45 38, 42 55, 36 50 Z" fill="#f48640"/>
         <path d="M64 50 C70 35, 60 22, 50 24 C55 38, 58 55, 64 50 Z" fill="#f48640"/>
         <path d="M44 48 C42 32, 50 24, 50 24 C50 24, 58 32, 56 48 C52 56, 48 56, 44 48 Z" fill="#ffb882"/>
       </svg>`,
-      peony_pink: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 Q49 70 50 55" stroke="#4d6139" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <!-- Petals layers -->
-        <circle cx="50" cy="42" r="35" fill="#f7b7cf" opacity="0.9"/>
-        <circle cx="42" cy="40" r="24" fill="#f294b6"/>
-        <circle cx="58" cy="40" r="24" fill="#f294b6"/>
-        <circle cx="50" cy="34" r="20" fill="#e66f9a"/>
-        <circle cx="50" cy="44" r="16" fill="#fce2eb"/>
-        <circle cx="50" cy="40" r="8" fill="#c44372"/>
+      peony_pink: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 Q49 70 50 50" stroke="#4d6139" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="50" cy="40" r="35" fill="#f7b7cf"/>
+        <circle cx="40" cy="38" r="22" fill="#f294b6"/>
+        <circle cx="60" cy="38" r="22" fill="#f294b6"/>
+        <circle cx="50" cy="32" r="18" fill="#e66f9a"/>
+        <circle cx="50" cy="42" r="14" fill="#fce2eb"/>
+        <circle cx="50" cy="38" r="7" fill="#c44372"/>
       </svg>`,
-      dahlia_white: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 Q50 70 50 55" stroke="#5a7042" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <circle cx="50" cy="45" r="34" fill="#f0ebe1"/>
-        <g fill="#ffffff" stroke="#d5ccbe" stroke-width="1">
-          <ellipse cx="50" cy="22" rx="7" ry="15"/>
-          <ellipse cx="50" cy="68" rx="7" ry="15"/>
-          <ellipse cx="27" cy="45" rx="15" ry="7"/>
-          <ellipse cx="73" cy="45" rx="15" ry="7"/>
-          <ellipse cx="34" cy="29" rx="10" ry="12" transform="rotate(-45 34 29)"/>
-          <ellipse cx="66" cy="29" rx="10" ry="12" transform="rotate(45 66 29)"/>
-          <ellipse cx="34" cy="61" rx="10" ry="12" transform="rotate(45 34 61)"/>
-          <ellipse cx="66" cy="61" rx="10" ry="12" transform="rotate(-45 66 61)"/>
-        </g>
-        <circle cx="50" cy="45" r="9" fill="#f7d057"/>
+      dahlia_white: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 Q50 70 50 50" stroke="#5a7042" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="50" cy="45" r="34" fill="#ede8df"/>
+        <ellipse cx="50" cy="20" rx="7" ry="16" fill="#ffffff" stroke="#ded5c5" stroke-width="1"/>
+        <ellipse cx="50" cy="70" rx="7" ry="16" fill="#ffffff" stroke="#ded5c5" stroke-width="1"/>
+        <ellipse cx="25" cy="45" rx="16" ry="7" fill="#ffffff" stroke="#ded5c5" stroke-width="1"/>
+        <ellipse cx="75" cy="45" rx="16" ry="7" fill="#ffffff" stroke="#ded5c5" stroke-width="1"/>
+        <circle cx="50" cy="45" r="12" fill="#f7d057"/>
+        <circle cx="50" cy="45" r="7" fill="#e5b42c"/>
       </svg>`,
-      bluebell: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M30 115 Q40 60 70 20" stroke="#526b3e" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <!-- Bell 1 -->
+      babysbreath: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 L50 65 M50 65 L30 35 M50 65 L70 35 M50 50 L50 20 M30 35 L18 15 M30 35 L40 18 M70 35 L60 18 M70 35 L82 15" stroke="#7a9163" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <circle cx="18" cy="15" r="5" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+        <circle cx="40" cy="18" r="4.5" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+        <circle cx="50" cy="20" r="5.5" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+        <circle cx="60" cy="18" r="4.5" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+        <circle cx="82" cy="15" r="5" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+        <circle cx="32" cy="35" r="4" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+        <circle cx="68" cy="35" r="4" fill="#ffffff" stroke="#c0ceb2" stroke-width="1.2"/>
+      </svg>`,
+      bluebell: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 115 Q40 60 70 20" stroke="#526b3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
         <path d="M68 25 C60 25, 52 35, 55 45 C65 48, 75 42, 76 35 Z" fill="#7d9fe8"/>
-        <!-- Bell 2 -->
         <path d="M52 48 C44 48, 36 58, 40 68 C50 70, 60 64, 60 56 Z" fill="#698edb"/>
-        <!-- Bell 3 -->
         <path d="M38 75 C30 75, 24 85, 28 93 C36 95, 46 90, 46 82 Z" fill="#587ecf"/>
       </svg>`,
-      babysbreath: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 L50 70 M50 70 L30 40 M50 70 L70 40 M50 55 L50 25 M30 40 L20 20 M30 40 L40 25 M70 40 L60 25 M70 40 L80 20" stroke="#7a9163" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <circle cx="20" cy="20" r="4.5" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
-        <circle cx="40" cy="23" r="4" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
-        <circle cx="50" cy="22" r="5" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
-        <circle cx="60" cy="23" r="4" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
-        <circle cx="80" cy="20" r="4.5" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
-        <circle cx="32" cy="38" r="3.5" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
-        <circle cx="68" cy="38" r="3.5" fill="#ffffff" stroke="#d5decb" stroke-width="1"/>
+      eucalyptus: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 Q50 60 50 15" stroke="#556b50" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <circle cx="38" cy="95" r="10" fill="#8ba88f"/>
+        <circle cx="62" cy="90" r="10" fill="#7a997e"/>
+        <circle cx="36" cy="70" r="12" fill="#8ba88f"/>
+        <circle cx="64" cy="65" r="12" fill="#7a997e"/>
+        <circle cx="40" cy="45" r="11" fill="#8ba88f"/>
+        <circle cx="60" cy="40" r="11" fill="#7a997e"/>
+        <circle cx="44" cy="25" r="9" fill="#9dbba1"/>
+        <circle cx="56" cy="22" r="8.5" fill="#8ba88f"/>
       </svg>`,
-      eucalyptus: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 Q50 60 50 15" stroke="#556b50" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <circle cx="40" cy="95" r="9" fill="#8ba88f" opacity="0.9"/>
-        <circle cx="60" cy="90" r="9" fill="#7a997e" opacity="0.9"/>
-        <circle cx="38" cy="70" r="11" fill="#8ba88f" opacity="0.9"/>
-        <circle cx="62" cy="65" r="11" fill="#7a997e" opacity="0.9"/>
-        <circle cx="42" cy="45" r="10" fill="#8ba88f" opacity="0.9"/>
-        <circle cx="58" cy="40" r="10" fill="#7a997e" opacity="0.9"/>
-        <circle cx="46" cy="25" r="8" fill="#9dbba1" opacity="0.95"/>
-        <circle cx="54" cy="22" r="7.5" fill="#8ba88f" opacity="0.95"/>
+      monstera: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 115 Q50 80 50 60" stroke="#3b5734" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 18 C22 18 18 60 40 85 C48 88 52 88 60 85 C82 60 78 18 50 18 Z" fill="#4a6e42"/>
+        <path d="M50 18 L50 85" stroke="#375231" stroke-width="2.5"/>
+        <path d="M50 38 Q30 43 20 34 M50 55 Q26 62 24 56 M50 38 Q70 43 80 34 M50 55 Q74 62 76 56" stroke="#fffdfa" stroke-width="3.5" stroke-linecap="round"/>
       </svg>`,
-      monstera: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 115 Q50 80 50 60" stroke="#3b5734" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <path d="M50 20 C25 20 20 60 40 85 C48 88 52 88 60 85 C80 60 75 20 50 20 Z" fill="#4a6e42"/>
-        <path d="M50 20 L50 85" stroke="#375231" stroke-width="2"/>
-        <!-- Leaf cuts -->
-        <path d="M50 40 Q32 45 22 36 M50 55 Q28 62 26 56 M50 40 Q68 45 78 36 M50 55 Q72 62 74 56" stroke="#faf7f2" stroke-width="3" stroke-linecap="round"/>
+      kraft_wrap: `<svg width="120" height="130" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 25 L60 120 L105 25 Q60 45 15 25 Z" fill="#c9a87c" stroke="#ab8c63" stroke-width="2"/>
+        <path d="M25 32 L60 120 L60 40 Z" fill="#b89567" opacity="0.5"/>
+        <path d="M45 80 Q60 88 75 80 Q60 74 45 80 Z" fill="#ffffff" stroke="#e0c7a8" stroke-width="2"/>
+        <ellipse cx="50" cy="80" rx="8" ry="5" fill="#ffffff" stroke="#d5bfa4" stroke-width="1.5"/>
+        <ellipse cx="70" cy="80" rx="8" ry="5" fill="#ffffff" stroke="#d5bfa4" stroke-width="1.5"/>
+        <circle cx="60" cy="80" r="4" fill="#d5bfa4"/>
+        <path d="M56 82 Q50 98 46 108 M64 82 Q70 98 74 108" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
       </svg>`,
-      kraft_wrap: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <!-- Kraft paper bouquet bottom cone wrap -->
-        <path d="M20 30 L50 110 L80 30 Q50 45 20 30 Z" fill="#c4a57b" stroke="#ab8c63" stroke-width="2"/>
-        <path d="M28 35 L50 110 L50 40 Z" fill="#b59469" opacity="0.4"/>
-        <path d="M38 75 Q50 82 62 75 Q50 70 38 75 Z" fill="#ffffff" stroke="#e0c7a8" stroke-width="1.5"/>
-        <!-- Bow Ribbon -->
-        <ellipse cx="43" cy="75" rx="7" ry="4" fill="#ffffff" stroke="#d5bfa4" stroke-width="1"/>
-        <ellipse cx="57" cy="75" rx="7" ry="4" fill="#ffffff" stroke="#d5bfa4" stroke-width="1"/>
-        <circle cx="50" cy="75" r="3" fill="#e0c7a8"/>
-        <path d="M48 76 Q42 90 40 98 M52 76 Q58 90 60 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>`,
-      silk_ribbon: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M35 55 Q25 45 35 35 Q48 45 50 55 Q52 45 65 35 Q75 45 65 55 Z" fill="#f09cae" stroke="#db7b91" stroke-width="1.5"/>
-        <circle cx="50" cy="55" r="5" fill="#db7b91"/>
-        <path d="M47 57 Q38 85 30 105 M53 57 Q62 85 70 105" stroke="#f09cae" stroke-width="6" stroke-linecap="round"/>
+      silk_ribbon: `<svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="38" cy="50" rx="14" ry="9" fill="#f4a8b9" stroke="#df8599" stroke-width="2" transform="rotate(-15 38 50)"/>
+        <ellipse cx="62" cy="50" rx="14" ry="9" fill="#f4a8b9" stroke="#df8599" stroke-width="2" transform="rotate(15 62 50)"/>
+        <circle cx="50" cy="50" r="6.5" fill="#df8599"/>
+        <path d="M46 54 Q36 85 26 110 M54 54 Q64 85 74 110" stroke="#f4a8b9" stroke-width="7" stroke-linecap="round"/>
       </svg>`
     };
 
-    // 2. 資料集清單
+    // 花材清單分類
     const flowerCatalog = {
       main: [
-        { id: "rose_peach", name: "蜜桃茱麗葉玫瑰", price: 85, badge: "人氣熱銷", svg: SVGS.rose_peach },
-        { id: "tulip_apricot", name: "杏橙鬱金香", price: 65, badge: "當季推薦", svg: SVGS.tulip_apricot },
-        { id: "peony_pink", name: "法式粉紅牡丹", price: 110, badge: "奢華主花", svg: SVGS.peony_pink },
-        { id: "dahlia_white", name: "雪白大麗花", price: 95, badge: "高雅必選", svg: SVGS.dahlia_white }
+        { id: "rose_peach", name: "蜜桃茱麗葉玫瑰", price: 85, badge: "熱銷主花", svg: SVGS.rose_peach },
+        { id: "tulip_apricot", name: "杏橙鬱金香", price: 65, badge: "當季人氣", svg: SVGS.tulip_apricot },
+        { id: "peony_pink", name: "法式粉紅牡丹", price: 110, badge: "奢華高雅", svg: SVGS.peony_pink },
+        { id: "dahlia_white", name: "雪白大麗花", price: 95, badge: "典雅必備", svg: SVGS.dahlia_white }
       ],
       filler: [
         { id: "babysbreath", name: "雪白滿天星", price: 45, badge: "百搭點綴", svg: SVGS.babysbreath },
-        { id: "bluebell", name: "唯美藍風鈴", price: 55, badge: "氛圍感", svg: SVGS.bluebell }
+        { id: "bluebell", name: "唯美藍風鈴", price: 55, badge: "空靈感", svg: SVGS.bluebell }
       ],
       foliage: [
-        { id: "eucalyptus", name: "圓葉尤加利", price: 35, badge: "自然綠葉", svg: SVGS.eucalyptus },
-        { id: "monstera", name: "龜背芋葉", price: 40, badge: "線條襯托", svg: SVGS.monstera }
+        { id: "eucalyptus", name: "圓葉尤加利", price: 35, badge: "自然清香", svg: SVGS.eucalyptus },
+        { id: "monstera", name: "龜背芋葉", price: 40, badge: "立體襯葉", svg: SVGS.monstera }
       ],
       wrap: [
-        { id: "kraft_wrap", name: "法式復古牛皮包裝", price: 120, badge: "底襯配件", svg: SVGS.kraft_wrap },
-        { id: "silk_ribbon", name: "落櫻粉絲綢緞帶", price: 50, badge: "束口裝飾", svg: SVGS.silk_ribbon }
+        { id: "kraft_wrap", name: "法式牛皮包裝底襯", price: 120, badge: "底襯配件", svg: SVGS.kraft_wrap },
+        { id: "silk_ribbon", name: "櫻粉絲綢緞帶", price: 50, badge: "束口裝飾", svg: SVGS.silk_ribbon }
       ]
     };
 
-    // 3. 初始化 Fabric.js 畫布
+    // 初始化 Fabric.js 畫布
     const canvas = new fabric.Canvas('flowerCanvas', {
       preserveObjectStacking: true,
       selectionColor: 'rgba(157, 92, 72, 0.15)',
@@ -596,14 +581,7 @@
       selectionLineWidth: 1.5
     });
 
-    let activeCategory = 'main';
-
-    // SVG 轉 DataURL 輔助函式
-    function svgToDataUrl(svgString) {
-      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-    }
-
-    // 4. 渲染花材選單列表
+    // 渲染花材卡片列表
     function renderGrid(catKey) {
       const grid = document.getElementById('flowerGrid');
       grid.innerHTML = '';
@@ -612,7 +590,7 @@
       items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'flower-item-card';
-        card.onclick = () => addFlowerToWorkbench(item);
+        card.onclick = () => addFlowerToCanvas(item);
         
         const badgeHtml = item.badge ? `<span class="card-badge">${item.badge}</span>` : '';
         
@@ -628,34 +606,33 @@
       });
     }
 
-    // 5. 切換分類 Tab
+    // 分類切換
     function switchCategory(catKey, element) {
       document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
-      activeCategory = catKey;
       renderGrid(catKey);
     }
 
-    // 6. 添加花材物件到畫布
-    function addFlowerToWorkbench(flower) {
-      const dataUri = svgToDataUrl(flower.svg);
-      fabric.Image.fromURL(dataUri, function(img) {
-        // 依種類給予初始大小與預設位置
-        let scale = 0.85;
-        let leftPos = 120 + (Math.random() * 40 - 20);
-        let topPos = 80 + (Math.random() * 40 - 20);
+    // ★ 關鍵修復：使用原生 fabric.loadSVGFromString 解析向量物件，永不失真、不變形、完美匯出
+    function addFlowerToCanvas(flower) {
+      fabric.loadSVGFromString(flower.svg, function(objects, options) {
+        const flowerGroup = fabric.util.groupSVGElements(objects, options);
+        
+        let scale = 1.0;
+        let leftPos = 110 + (Math.random() * 40 - 20);
+        let topPos = 70 + (Math.random() * 40 - 20);
 
         if (flower.id === 'kraft_wrap') {
-          scale = 1.3;
-          leftPos = 100;
-          topPos = 100;
+          scale = 1.6;
+          leftPos = 65;
+          topPos = 80;
         } else if (flower.id === 'silk_ribbon') {
-          scale = 0.9;
+          scale = 1.1;
           leftPos = 110;
           topPos = 150;
         }
 
-        img.set({
+        flowerGroup.set({
           left: leftPos,
           top: topPos,
           scaleX: scale,
@@ -663,33 +640,31 @@
           cornerColor: '#9d5c48',
           cornerStrokeColor: '#ffffff',
           borderColor: '#9d5c48',
-          cornerSize: 9,
+          cornerSize: 10,
           transparentCorners: false,
           padding: 6
         });
 
-        // 綁定自訂屬性供統計用
-        img.customData = {
+        flowerGroup.customData = {
           id: flower.id,
           name: flower.name,
           price: flower.price
         };
 
-        canvas.add(img);
-        
-        // 若是包裝底襯，預設自動推到最底層
+        canvas.add(flowerGroup);
+
         if (flower.id === 'kraft_wrap') {
-          canvas.sendToBack(img);
+          canvas.sendToBack(flowerGroup);
         } else {
-          canvas.setActiveObject(img);
+          canvas.setActiveObject(flowerGroup);
         }
-        
+
         canvas.renderAll();
         updateSummary();
       });
     }
 
-    // 7. 統計與價格計算
+    // 價格與數量統計
     function updateSummary() {
       const objects = canvas.getObjects();
       let totalCount = 0;
@@ -706,7 +681,7 @@
       document.getElementById('totalPrice').innerText = `NT$ ${totalPrice.toLocaleString()}`;
     }
 
-    // 8. 畫布控制按鈕群
+    // 工具功能
     function bringForward() {
       const active = canvas.getActiveObject();
       if (active) {
@@ -749,19 +724,20 @@
       }
     }
 
-    // 監聽畫布點擊與清除
     canvas.on('selection:cleared', updateSummary);
     canvas.on('object:modified', updateSummary);
 
-    // 9. 完成彈窗與圖片匯出
+    // 完成與匯出彈窗
     function openFinishModal() {
       canvas.discardActiveObject();
       canvas.renderAll();
+      
       const dataUrl = canvas.toDataURL({
         format: 'png',
         quality: 1,
-        multiplier: 2 // 匯出 2 倍超高清解析度
+        multiplier: 2
       });
+      
       document.getElementById('exportPreview').src = dataUrl;
       document.getElementById('finishModal').style.display = 'flex';
     }
@@ -779,18 +755,15 @@
       closeFinishModal();
     }
 
-    // 10. 初始化頁面載入預設包裝底襯與一朵玫瑰花
+    // 初始化頁面與預設花束
     window.addEventListener('DOMContentLoaded', () => {
       renderGrid('main');
       
-      // 自動預載一組優雅預設底襯花束
-      const defaultWrap = flowerCatalog.wrap[0];
-      const defaultRose = flowerCatalog.main[0];
-      
-      addFlowerToWorkbench(defaultWrap);
+      // 自動預載一組花束與底襯
+      addFlowerToCanvas(flowerCatalog.wrap[0]);
       setTimeout(() => {
-        addFlowerToWorkbench(defaultRose);
-      }, 100);
+        addFlowerToCanvas(flowerCatalog.main[0]);
+      }, 150);
     });
   </script>
 </body>

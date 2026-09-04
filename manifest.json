@@ -1,0 +1,17 @@
+{
+  "name": "Botanical Bliss - 線上 DIY 客製花束工作台",
+  "short_name": "Botanical Bliss",
+  "description": "挑選花材、拖曳排版、翻轉旋轉，完成後匯出高解析度去背花束圖片。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF6ED",
+  "theme_color": "#3E5C46",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

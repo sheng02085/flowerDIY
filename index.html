@@ -743,7 +743,7 @@ function BotanicalBouquetBuilder() {
             ref={canvasRef}
             onPointerDown={() => setSelectedId(null)}
             className="relative w-full aspect-square rounded-3xl overflow-hidden"
-            style={{ maxWidth: 620, background: PAPER, border: `1px solid ${LINE}`, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', touchAction: 'none' }}
+            style={{ maxWidth: 620, background: PAPER, border: `1px solid ${LINE}`, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', touchAction: 'none', zIndex: 0 }}
           >
             {items.length === 0 && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 pointer-events-none" style={{ color: INK, opacity: 0.45 }}>
@@ -836,12 +836,14 @@ function BotanicalBouquetBuilder() {
               onPointerDown={handleSheetHandlePointerDown}
               onPointerMove={handleSheetHandlePointerMove}
               onPointerUp={handleSheetHandlePointerUp}
-              className="w-full pt-3 pb-2 shrink-0 flex justify-center"
-              style={{ touchAction: 'none', cursor: 'grab' }}
+              className="shrink-0"
+              style={{ touchAction: 'pan-x', cursor: 'grab' }}
             >
-              <div className="w-10 h-1.5 rounded-full" style={{ background: LINE }} />
+              <div className="w-full pt-4 pb-2 flex justify-center">
+                <div className="w-12 h-2 rounded-full" style={{ background: LINE }} />
+              </div>
+              <TabChips activeTab={activeTab} onSelect={setActiveTab} />
             </div>
-            <TabChips activeTab={activeTab} onSelect={setActiveTab} />
             <MaterialPanel
               activeTab={activeTab}
               visibleMaterials={visibleMaterials}

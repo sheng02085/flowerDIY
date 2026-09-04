@@ -6,7 +6,6 @@
 <title>Botanical Bliss - 線上 DIY 客製花束工作台</title>
 <meta name="description" content="線上 DIY 客製花束工作台：挑選花材、拖曳排版、翻轉旋轉，完成後匯出高解析度去背花束圖片。">
 
-<!-- 加到主畫面 / PWA 設定 -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#3E5C46">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,9 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 
-<!-- Tailwind（瀏覽器端即時編譯，不需要建置流程） -->
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- React 18 + Babel standalone（讓這個檔案可以直接寫 JSX，不需要 npm/建置流程） -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
@@ -406,20 +403,21 @@ function TabChips({ activeTab, onSelect }) {
 
 // 花材格子＋上傳區塊：桌面版側邊欄、手機版下滑面板都共用同一份
 function MaterialPanel({ activeTab, visibleMaterials, customCount, onAdd, onDelete, onChangePrice, onChangeName, onFiles }) {
-  const fileInputRef = useRef(null);
+  const inputId = useRef(`upload-${Math.random().toString(36).slice(2)}`).current;
   return (
     <div className="p-3 overflow-y-auto flex-1">
       {activeTab === 'custom' && (
         <div className="mb-3">
-          <button
-            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+          <label
+            htmlFor={inputId}
             style={{ borderColor: FOREST, color: FOREST, transition: `transform 0.15s ${SPRING}` }}
-            className="w-full border-2 border-dashed rounded-2xl py-4 text-sm flex flex-col items-center gap-1 active:scale-95"
+            className="w-full border-2 border-dashed rounded-2xl py-4 text-sm flex flex-col items-center gap-1 active:scale-95 cursor-pointer"
           >
             <Icon name="upload" size={18} /> 上傳我的花材圖片
-          </button>
+          </label>
           <input
-            ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+            id={inputId} type="file" accept="image/*" multiple
+            style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}
             onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }}
           />
           <p className="text-xs opacity-60 mt-2" style={{ color: INK }}>上傳去背的花朵、葉子或緞帶圖片，就能加入花材庫，之後隨時都能使用。</p>
@@ -459,6 +457,8 @@ function BotanicalBouquetBuilder() {
 
   const canvasRef = useRef(null);
   const dragInfo = useRef(null);
+  const pinchInfo = useRef(null);
+  const touchPoints = useRef(new Map());
   const nextZ = useRef(1);
 
   const visibleMaterials = activeTab === 'custom' ? customMaterials : PRESETS.filter((m) => m.category === activeTab);
@@ -526,10 +526,38 @@ function BotanicalBouquetBuilder() {
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     setSelectedId(item.id);
-    setDraggingId(item.id);
-    dragInfo.current = { id: item.id, startX: e.clientX, startY: e.clientY, originX: item.x, originY: item.y };
+    touchPoints.current.set(e.pointerId, { x: e.clientX, y: e.clientY, itemId: item.id });
+
+    const sameItemPoints = Array.from(touchPoints.current.values()).filter((p) => p.itemId === item.id);
+    if (sameItemPoints.length >= 2) {
+      // 第二根手指按在同一朵花上：切成雙指縮放模式
+      const [p1, p2] = sameItemPoints;
+      const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y) || 1;
+      pinchInfo.current = { itemId: item.id, initialDist: dist, initialW: item.w, initialH: item.h };
+      dragInfo.current = null;
+      setDraggingId(null);
+    } else {
+      setDraggingId(item.id);
+      dragInfo.current = { id: item.id, startX: e.clientX, startY: e.clientY, originX: item.x, originY: item.y };
+    }
   };
   const handleItemPointerMove = (e, item) => {
+    if (touchPoints.current.has(e.pointerId)) {
+      const tp = touchPoints.current.get(e.pointerId);
+      tp.x = e.clientX;
+      tp.y = e.clientY;
+    }
+    const p = pinchInfo.current;
+    if (p && p.itemId === item.id) {
+      const sameItemPoints = Array.from(touchPoints.current.values()).filter((pt) => pt.itemId === item.id);
+      if (sameItemPoints.length >= 2) {
+        const [p1, p2] = sameItemPoints;
+        const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y) || 1;
+        const ratio = dist / p.initialDist;
+        updateItem(item.id, { w: clamp(p.initialW * ratio, 20, 420), h: clamp(p.initialH * ratio, 20, 420) });
+      }
+      return;
+    }
     const d = dragInfo.current;
     if (!d || d.id !== item.id) return;
     const rect = canvasRef.current.getBoundingClientRect();
@@ -537,7 +565,12 @@ function BotanicalBouquetBuilder() {
     const ny = clamp(d.originY + (e.clientY - d.startY), 0, rect.height);
     updateItem(item.id, { x: nx, y: ny });
   };
-  const handleItemPointerUp = () => { dragInfo.current = null; setDraggingId(null); };
+  const handleItemPointerUp = (e) => {
+    if (e && touchPoints.current.has(e.pointerId)) touchPoints.current.delete(e.pointerId);
+    pinchInfo.current = null;
+    dragInfo.current = null;
+    setDraggingId(null);
+  };
 
   const handleFiles = (fileList) => {
     Array.from(fileList).forEach((file) => {
@@ -708,7 +741,7 @@ function BotanicalBouquetBuilder() {
                 onPointerDown={(e) => e.stopPropagation()}
                 className="absolute flex items-center gap-1 rounded-full px-2 py-1.5 shadow-xl overflow-x-auto"
                 style={{
-                  left: toolbarLeft, top: toolbarTop, maxWidth: '92%',
+                  left: toolbarLeft, top: toolbarTop, maxWidth: '92%', zIndex: 99999,
                   background: 'rgba(30,24,16,0.6)', backdropFilter: 'blur(16px) saturate(1.8)', WebkitBackdropFilter: 'blur(16px) saturate(1.8)',
                   border: '1px solid rgba(255,255,255,0.12)',
                   animation: `toolbarIn 0.25s ${SPRING} both`,

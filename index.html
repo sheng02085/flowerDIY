@@ -297,6 +297,7 @@ const LINE = '#E4D9C4';
 const SPRING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const SHEET_OFFSCREEN = 1000;
 
 const imageCache = new Map();
 function loadImage(src) {
@@ -454,6 +455,10 @@ function BotanicalBouquetBuilder() {
   const [exportUrl, setExportUrl] = useState(null);
   const [exporting, setExporting] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [sheetOffset, setSheetOffset] = useState(SHEET_OFFSCREEN);
+  const [sheetDragging, setSheetDragging] = useState(false);
+  const [sheetClosing, setSheetClosing] = useState(false);
+  const sheetDragInfo = useRef(null);
 
   const canvasRef = useRef(null);
   const dragInfo = useRef(null);
@@ -624,6 +629,47 @@ function BotanicalBouquetBuilder() {
   };
 
   useEffect(() => {
+    if (pickerOpen) {
+      setSheetClosing(false);
+      setSheetOffset(SHEET_OFFSCREEN);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setSheetOffset(0));
+      });
+    }
+  }, [pickerOpen]);
+
+  const closeSheetAnimated = () => {
+    setSheetClosing(true);
+    setSheetOffset(SHEET_OFFSCREEN);
+  };
+
+  const handleSheetHandlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    sheetDragInfo.current = { startY: e.clientY, startOffset: sheetOffset };
+    setSheetDragging(true);
+  };
+  const handleSheetHandlePointerMove = (e) => {
+    const d = sheetDragInfo.current;
+    if (!d) return;
+    setSheetOffset(Math.max(0, d.startOffset + (e.clientY - d.startY)));
+  };
+  const handleSheetHandlePointerUp = () => {
+    sheetDragInfo.current = null;
+    setSheetDragging(false);
+    setSheetOffset((cur) => {
+      if (cur > 110) {
+        setSheetClosing(true);
+        return SHEET_OFFSCREEN;
+      }
+      return 0;
+    });
+  };
+
+  useEffect(() => {
+    if (showExport || pickerOpen) setSelectedId(null);
+  }, [showExport, pickerOpen]);
+
+  useEffect(() => {
     const handler = (e) => {
       if (!selectedId) return;
       const tag = document.activeElement && document.activeElement.tagName;
@@ -765,25 +811,42 @@ function BotanicalBouquetBuilder() {
         </main>
       </div>
 
-      {/* 手機版選材面板：從底部滑出，選完自動收合，回到畫布看成果 */}
+      {/* 手機版選材面板：從底部滑出；往下拖曳把手可以直接關閉，選完花材也會自動收合 */}
       {pickerOpen && (
         <div
           className="fixed inset-0 z-40 flex items-end md:hidden"
-          style={{ background: 'rgba(20,16,10,0.45)', backdropFilter: 'blur(2px)' }}
-          onClick={() => setPickerOpen(false)}
+          style={{
+            background: 'rgba(20,16,10,0.45)', backdropFilter: 'blur(2px)',
+            opacity: clamp(1 - sheetOffset / SHEET_OFFSCREEN, 0, 1),
+            transition: sheetDragging ? 'none' : `opacity 0.32s ${SPRING}`,
+          }}
+          onClick={closeSheetAnimated}
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            onTransitionEnd={(e) => { if (e.propertyName === 'transform' && sheetClosing) setPickerOpen(false); }}
             className="w-full rounded-t-3xl flex flex-col"
-            style={{ maxHeight: '78vh', background: '#FBF6ED', boxShadow: '0 -8px 40px rgba(0,0,0,0.18)', animation: `sheetUp 0.32s ${SPRING} both` }}
+            style={{
+              maxHeight: '78vh', background: '#FBF6ED', boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
+              transform: `translateY(${sheetOffset}px)`,
+              transition: sheetDragging ? 'none' : `transform 0.32s ${SPRING}`,
+            }}
           >
-            <div className="w-10 h-1.5 rounded-full mx-auto mt-3 mb-1 shrink-0" style={{ background: LINE }} />
+            <div
+              onPointerDown={handleSheetHandlePointerDown}
+              onPointerMove={handleSheetHandlePointerMove}
+              onPointerUp={handleSheetHandlePointerUp}
+              className="w-full pt-3 pb-2 shrink-0 flex justify-center"
+              style={{ touchAction: 'none', cursor: 'grab' }}
+            >
+              <div className="w-10 h-1.5 rounded-full" style={{ background: LINE }} />
+            </div>
             <TabChips activeTab={activeTab} onSelect={setActiveTab} />
             <MaterialPanel
               activeTab={activeTab}
               visibleMaterials={visibleMaterials}
               customCount={customMaterials.length}
-              onAdd={(m) => { addItem(m); setPickerOpen(false); }}
+              onAdd={(m) => { addItem(m); closeSheetAnimated(); }}
               onDelete={(id) => setCustomMaterials((prev) => prev.filter((x) => x.id !== id))}
               onChangePrice={(id, p) => setCustomMaterials((prev) => prev.map((x) => (x.id === id ? { ...x, price: p } : x)))}
               onChangeName={(id, n) => setCustomMaterials((prev) => prev.map((x) => (x.id === id ? { ...x, name: n } : x)))}
